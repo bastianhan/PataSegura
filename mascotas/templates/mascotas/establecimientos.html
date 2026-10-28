@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Veterinarias y refugios - PataSegura</title>
+</head>
+<body>
+    <h1>Veterinarias y refugios</h1>
+    <ul>
+    {% for lugar in establecimientos %}
+        <li><strong>{{ lugar.nombre }}</strong> ({{ lugar.get_tipo_display }}) — {{ lugar.direccion }}</li>
+    {% empty %}
+        <li>Todavía no hay establecimientos cargados.</li>
+    {% endfor %}
+    </ul>
+    <p><a href="{% url 'inicio' %}">Volver al inicio</a></p>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Adopciones de mascotas - PataSegura</title>
+</head>
+<body>
+    <h1>Mascotas en adopción</h1>
+    <ul>
+    {% for lugar in adopcion %}
+        <li><strong>{{ lugar.nombre }}</strong> ({{ lugar.get_tipo_display }}) — {{ lugar.direccion }}</li>
+    {% empty %}
+        <li>Todavía no hay mascotas cargadas.</li>
+    {% endfor %}
+    </ul>
+    <p><a href="{% url 'inicio' %}">Volver al inicio</a></p>
+</body>
+</html>
