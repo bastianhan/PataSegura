@@ -1,19 +1,19 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Veterinarias y refugios - PataSegura</title>
-</head>
-<body>
-    <h1>Veterinarias y refugios</h1>
-    <ul>
-    {% for lugar in establecimientos %}
-        <li><strong>{{ lugar.nombre }}</strong> ({{ lugar.get_tipo_display }}) — {{ lugar.direccion }}</li>
-    {% empty %}
-        <li>Todavía no hay establecimientos cargados.</li>
-    {% endfor %}
-    </ul>
-    <p><a href="{% url 'inicio' %}">Volver al inicio</a></p>
-</body>
-</html>
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Veterinarias y refugios - PataSegura{% endblock %}
+{% block contenido %}
+<h1>Veterinarias y refugios</h1>
+<div class="grid">
+{% for lugar in establecimientos %}
+    <div class="card">
+        <span class="badge">{{ lugar.get_tipo_display }}</span>
+        <h3>{{ lugar.nombre }}</h3>
+        <p>{{ lugar.direccion }}</p>
+        {% if lugar.telefono %}<p>📞 {{ lugar.telefono }}</p>{% endif %}
+        {% if lugar.horario %}<p>🕒 {{ lugar.horario }}</p>{% endif %}
+        <a href="https://www.google.com/maps/search/?api=1&query={{ lugar.direccion|urlencode }}" target="_blank" rel="noopener">Ver en el mapa ↗</a>
+    </div>
+{% empty %}
+    <p>Todavía no hay establecimientos cargados.</p>
+{% endfor %}
+</div>
+{% endblock %}

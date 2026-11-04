@@ -1,19 +1,29 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Adopciones de mascotas - PataSegura</title>
-</head>
-<body>
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Adopciones - PataSegura{% endblock %}
+{% block contenido %}
+<div class="section-header">
     <h1>Mascotas en adopción</h1>
-    <ul>
-    {% for lugar in adopcion %}
-        <li><strong>{{ lugar.nombre }}</strong> ({{ lugar.get_tipo_display }}) — {{ lugar.direccion }}</li>
-    {% empty %}
-        <li>Todavía no hay mascotas cargadas.</li>
-    {% endfor %}
-    </ul>
-    <p><a href="{% url 'inicio' %}">Volver al inicio</a></p>
-</body>
-</html>
+    {% if user.is_authenticated %}<a href="{% url 'publicar_adopcion' %}" class="btn-primary">+ Publicar</a>{% endif %}
+</div>
+<div class="lista-horizontal">
+{% for mascota in adopciones %}
+    <div class="item-horizontal">
+        {% if mascota.foto %}
+            <img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}">
+        {% else %}
+            <div class="item-sin-foto">🐾</div>
+        {% endif %}
+        <div class="item-info">
+            <div class="item-top">
+                <strong>{{ mascota.nombre }}</strong>
+                <span class="badge">Hace {{ mascota.fecha_publicacion|timesince }}</span>
+            </div>
+            <p>{{ mascota.get_especie_display }}{% if mascota.edad_aproximada %} · {{ mascota.edad_aproximada }}{% endif %}</p>
+            <p class="text-muted">📍 {{ mascota.zona }}</p>
+        </div>
+    </div>
+{% empty %}
+    <p>No hay mascotas en adopción todavía.</p>
+{% endfor %}
+</div>
+{% endblock %}

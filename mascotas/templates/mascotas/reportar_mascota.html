@@ -1,0 +1,12 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Reportar mascota perdida - PataSegura{% endblock %}
+{% block contenido %}
+<div class="form-card">
+    <h1>Reportar mascota perdida</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Publicar</button>
+    </form>
+</div>
+{% endblock %}

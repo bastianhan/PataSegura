@@ -1,0 +1,30 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Mascotas perdidas - PataSegura{% endblock %}
+{% block contenido %}
+<div class="section-header">
+    <h1>Mascotas perdidas</h1>
+    {% if user.is_authenticated %}<a href="{% url 'reportar_mascota' %}" class="btn-primary">+ Reportar</a>{% endif %}
+</div>
+<div class="lista-horizontal">
+{% for mascota in mascotas %}
+    <a href="{% url 'detalle_mascota' mascota.id %}" class="item-horizontal">
+        {% if mascota.foto %}
+            <img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}">
+        {% else %}
+            <div class="item-sin-foto">🐾</div>
+        {% endif %}
+        <div class="item-info">
+            <div class="item-top">
+                <strong>{{ mascota.nombre|default:"Sin nombre" }}</strong>
+                <span class="badge">Hace {{ mascota.fecha_publicacion|timesince }}</span>
+            </div>
+            <p>{{ mascota.get_especie_display }}{% if mascota.raza %} · {{ mascota.raza }}{% endif %}</p>
+            <p class="text-muted">📍 {{ mascota.zona }}</p>
+        </div>
+        <span class="chevron">›</span>
+    </a>
+{% empty %}
+    <p>No hay reportes todavía.</p>
+{% endfor %}
+</div>
+{% endblock %}

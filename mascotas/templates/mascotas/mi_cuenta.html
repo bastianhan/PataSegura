@@ -1,0 +1,40 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Mi cuenta - PataSegura{% endblock %}
+{% block contenido %}
+<div class="cuenta-header">
+    <div class="avatar avatar-lg">{{ user.username|first|upper }}</div>
+    <div>
+        <h1>{{ user.username }}</h1>
+        <p class="text-muted">{{ user.email }}</p>
+    </div>
+</div>
+
+<h2>Mis mascotas reportadas</h2>
+<div class="grid">
+{% for mascota in mis_mascotas %}
+    <a href="{% url 'detalle_mascota' mascota.id %}" class="card card-link">
+        <h3>{{ mascota.nombre|default:"Sin nombre" }}</h3>
+        <p>{{ mascota.get_estado_display }} — {{ mascota.zona }}</p>
+    </a>
+{% empty %}
+    <p class="text-muted">Todavía no se ha reportado ninguna mascota.</p>
+{% endfor %}
+</div>
+
+<h2>Mis publicaciones de adopción</h2>
+<div class="grid">
+{% for mascota in mis_adopciones %}
+    <div class="card">
+        <h3>{{ mascota.nombre }}</h3>
+        <p>{{ mascota.get_especie_display }} — {{ mascota.zona }}</p>
+    </div>
+{% empty %}
+    <p class="text-muted">Todavía no se ha publicado ninguna mascota en adopción.</p>
+{% endfor %}
+</div>
+
+<form action="{% url 'logout' %}" method="post" class="cuenta-logout">
+    {% csrf_token %}
+    <button type="submit" class="btn-secondary">Cerrar sesión</button>
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Publicar en adopción - PataSegura{% endblock %}
+{% block contenido %}
+<div class="form-card">
+    <h1>Publicar mascota en adopción</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Publicar</button>
+    </form>
+</div>
+{% endblock %}

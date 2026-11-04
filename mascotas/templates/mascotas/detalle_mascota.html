@@ -1,0 +1,19 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}{{ mascota.nombre|default:"Mascota" }} - PataSegura{% endblock %}
+{% block contenido %}
+<div class="detalle">
+    {% if mascota.foto %}<img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}" class="detalle-foto">{% endif %}
+    <h1>{{ mascota.nombre|default:"Mascota sin nombre" }}</h1>
+    <p><strong>Especie:</strong> {{ mascota.get_especie_display }}</p>
+    {% if mascota.raza %}<p><strong>Raza:</strong> {{ mascota.raza }}</p>{% endif %}
+    {% if mascota.color %}<p><strong>Color:</strong> {{ mascota.color }}</p>{% endif %}
+    <p><strong>Zona:</strong> {{ mascota.zona }}</p>
+    <p><strong>Descripción:</strong> {{ mascota.descripcion }}</p>
+    <p><strong>Estado:</strong> {{ mascota.get_estado_display }}</p>
+    {% if mascota.mostrar_telefono and mascota.telefono_contacto %}
+        <p><strong>Contacto:</strong> {{ mascota.telefono_contacto }}</p>
+    {% else %}
+        <p class="nota">Esta publicación no comparte un teléfono público.</p>
+    {% endif %}
+</div>
+{% endblock %}

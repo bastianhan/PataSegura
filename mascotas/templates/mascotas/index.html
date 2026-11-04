@@ -1,14 +1,18 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>PataSegura</title>
-    <link rel="stylesheet" href="{% static 'mascotas/estilos.css' %}">
-</head>
-<body>
-    <h1>Plataforma de Adopción y Rescate</h1>
-    <button id="btn-alerta">Reportar Mascota</button>
-    <script src="{% static 'mascotas/main.js' %}"></script>
-</body>
-</html>
+{% extends 'mascotas/base.html' %}
+{% block contenido %}
+<section class="hero">
+    <h1>Juntos para que vuelvan a casa</h1>
+    <p>Encuentra y ayuda a encontrar mascotas perdidas en tu zona.</p>
+    {% if user.is_authenticated %}
+    <div class="hero-actions">
+        <a href="{% url 'reportar_mascota' %}" class="btn-primary">Reportar mascota perdida</a>
+        <a href="{% url 'publicar_adopcion' %}" class="btn-secondary">Publicar en adopción</a>
+    </div>
+    {% else %}
+    <div class="hero-actions">
+        <a href="{% url 'registro' %}" class="btn-primary">Crear cuenta</a>
+        <a href="{% url 'login' %}" class="btn-secondary">Iniciar sesión</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

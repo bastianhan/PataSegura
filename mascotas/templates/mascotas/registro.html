@@ -1,0 +1,20 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Crear cuenta - PataSegura{% endblock %}
+{% block contenido %}
+<div class="auth-layout">
+    <div class="auth-aside">
+        <div class="auth-icon">🐾</div>
+        <h2>Únete a la comunidad</h2>
+        <p>Ayuda a que más mascotas vuelvan a casa.</p>
+    </div>
+    <div class="auth-form">
+        <h1>Crear cuenta</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-primary btn-block">Registrarse</button>
+        </form>
+        <p class="auth-switch">¿Ya tiene cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
+    </div>
+</div>
+{% endblock %}

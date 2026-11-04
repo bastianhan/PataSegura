@@ -1,0 +1,20 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Iniciar sesión - PataSegura{% endblock %}
+{% block contenido %}
+<div class="auth-layout">
+    <div class="auth-aside">
+        <div class="auth-icon">🐾</div>
+        <h2>Juntos para que vuelvan a casa</h2>
+        <p>Encuentra y ayuda a encontrar mascotas perdidas en tu zona.</p>
+    </div>
+    <div class="auth-form">
+        <h1>Iniciar sesión</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-primary btn-block">Entrar</button>
+        </form>
+        <p class="auth-switch">¿No tiene cuenta? <a href="{% url 'registro' %}">Crear una cuenta</a></p>
+    </div>
+</div>
+{% endblock %}
