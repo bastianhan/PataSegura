@@ -1,0 +1,8 @@
+{% load patasegura %}
+<div class="grupo-campo{% if campo.errors %} con-error{% endif %}">
+    <label class="campo-icono" title="{{ campo.label }}">
+        {% icono ico %}{{ campo }}
+        {% if clave %}<button type="button" class="ver-clave" aria-label="Mostrar contraseña">{% icono 'ojo' 18 %}</button>{% endif %}
+    </label>
+    {% for e in campo.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+</div>

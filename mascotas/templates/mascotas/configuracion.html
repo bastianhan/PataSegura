@@ -1,0 +1,16 @@
+{% extends 'mascotas/base.html' %}
+{% load patasegura %}
+{% block titulo %}Configuración - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-angosta">
+    <a href="{% url 'mi_cuenta' %}" class="volver-link">{% icono 'atras' 18 %} Mi cuenta</a>
+    <h1>Datos de contacto</h1>
+    <p class="text-muted">Así te pueden contactar otras personas cuando publicas una alerta.</p>
+    <form method="post" class="form-card formulario" novalidate>
+        {% csrf_token %}
+        {% for campo in form %}{% include 'mascotas/_campo.html' with campo=campo %}{% endfor %}
+        <p class="texto-chico text-muted">Correo de la cuenta: <b>{{ user.email }}</b></p>
+        <button type="submit" class="btn-primary btn-block">Guardar cambios</button>
+    </form>
+</div>
+{% endblock %}

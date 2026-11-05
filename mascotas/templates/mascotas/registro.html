@@ -1,20 +1,35 @@
 {% extends 'mascotas/base.html' %}
+{% load patasegura %}
 {% block titulo %}Crear cuenta - PataSegura{% endblock %}
+{% block navbar %}{% endblock %}
+{% block clase_main %}auth-pagina{% endblock %}
 {% block contenido %}
 <div class="auth-layout">
-    <div class="auth-aside">
-        <div class="auth-icon">🐾</div>
-        <h2>Únete a la comunidad</h2>
-        <p>Ayuda a que más mascotas vuelvan a casa.</p>
-    </div>
-    <div class="auth-form">
-        <h1>Crear cuenta</h1>
-        <form method="post">
+    <section class="auth-aside">
+        <span class="logo logo-grande">{% huella 34 %}<span>PataSegura</span></span>
+        <h1>Únete a la comunidad</h1>
+        <p>Cada alerta que publicas llega a vecinos que pueden ayudar.</p>
+        {% include 'mascotas/_ilustracion.html' %}
+    </section>
+
+    <section class="auth-form">
+        <a href="{% url 'login' %}" class="boton-icono" aria-label="Volver">{% icono 'atras' %}</a>
+        <div class="centrado">
+            <span class="logo">{% huella 28 %}<span>PataSegura</span></span>
+            <h2>Crear cuenta</h2>
+            <p class="text-muted">Únete a nuestra comunidad y ayuda a que más mascotas vuelvan a casa.</p>
+        </div>
+        <form method="post" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
+            {% if form.errors %}<div class="alerta-error">Revisa los campos marcados en rojo.</div>{% endif %}
+            {% include 'mascotas/_campo_icono.html' with campo=form.nombre_completo ico='usuario' %}
+            {% include 'mascotas/_campo_icono.html' with campo=form.email ico='correo' %}
+            {% include 'mascotas/_campo_icono.html' with campo=form.telefono ico='telefono' %}
+            {% include 'mascotas/_campo_icono.html' with campo=form.password1 ico='candado' clave=True %}
+            {% include 'mascotas/_campo_icono.html' with campo=form.password2 ico='candado' clave=True %}
             <button type="submit" class="btn-primary btn-block">Registrarse</button>
         </form>
-        <p class="auth-switch">¿Ya tiene cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
-    </div>
+        <p class="centrado texto-chico">¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+    </section>
 </div>
 {% endblock %}

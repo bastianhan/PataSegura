@@ -1,27 +1,52 @@
 {% extends 'mascotas/base.html' %}
+{% load patasegura %}
 {% block titulo %}Adopciones - PataSegura{% endblock %}
 {% block contenido %}
+{% include 'mascotas/_pestanas_foro.html' with activa='adopciones' %}
+
 <div class="section-header">
-    <h1>Mascotas en adopción</h1>
-    {% if user.is_authenticated %}<a href="{% url 'publicar_adopcion' %}" class="btn-primary">+ Publicar</a>{% endif %}
-</div>
-<div class="lista-horizontal">
-{% for mascota in adopciones %}
-    <div class="item-horizontal">
-        {% if mascota.foto %}
-            <img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}">
-        {% else %}
-            <div class="item-sin-foto">🐾</div>
-        {% endif %}
-        <div class="item-info">
-            <div class="item-top">
-                <strong>{{ mascota.nombre }}</strong>
-                <span class="badge">Hace {{ mascota.fecha_publicacion|timesince }}</span>
-            </div>
-            <p>{{ mascota.get_especie_display }}{% if mascota.edad_aproximada %} · {{ mascota.edad_aproximada }}{% endif %}</p>
-            <p class="text-muted">📍 {{ mascota.zona }}</p>
-        </div>
+    <div>
+        <h1>Mascotas en adopción</h1>
+        <p class="text-muted">Un espacio aparte para que las adopciones no se mezclen con las emergencias.</p>
     </div>
+    {% if user.is_authenticated %}<a href="{% url 'publicar_adopcion' %}" class="btn-primary">{% icono 'publicar' 18 %} Publicar</a>{% endif %}
+</div>
+
+<!-- Perfiles de refugios (maquetado: los refugios podrán crear su perfil más adelante) -->
+<section class="bloque-refugios">
+    <div class="bloque-titulo">
+        <h2>Refugios y rescatistas</h2>
+        <button type="button" class="btn-secondary btn-chico" data-proximamente="Muy pronto los refugios podrán crear su propio perfil.">{% icono 'casa' 16 %} Crear perfil de refugio</button>
+    </div>
+    <div class="carrusel-refugios">
+    {% for refugio in refugios %}
+        <article class="card refugio">
+            <div class="avatar avatar-refugio">{% icono 'casa' 22 %}</div>
+            <div>
+                <h3>{{ refugio.nombre }}</h3>
+                <p class="text-muted texto-chico">{% icono 'pin' 14 %} {{ refugio.direccion }}</p>
+                {% if refugio.descripcion %}<p class="texto-chico">{{ refugio.descripcion }}</p>{% endif %}
+            </div>
+        </article>
+    {% empty %}
+        <p class="text-muted">Aún no hay refugios registrados.</p>
+    {% endfor %}
+    </div>
+</section>
+
+<h2>Esperando un hogar</h2>
+<div class="grid">
+{% for mascota in adopciones %}
+    <article class="card card-adopcion">
+        {% include 'mascotas/_foto.html' with mascota=mascota tam='grande' %}
+        <div class="item-top">
+            <h3>{{ mascota.nombre }}</h3>
+            <span class="badge badge-verde">Disponible</span>
+        </div>
+        <p class="text-muted">{{ mascota.get_especie_display }}{% if mascota.edad_aproximada %} · {{ mascota.edad_aproximada }}{% endif %}</p>
+        <p class="texto-chico">{{ mascota.descripcion|truncatechars:110 }}</p>
+        <p class="text-muted texto-chico">{% icono 'pin' 14 %} {{ mascota.zona }} · publicado hace {{ mascota.fecha_publicacion|timesince }}</p>
+    </article>
 {% empty %}
     <p>No hay mascotas en adopción todavía.</p>
 {% endfor %}

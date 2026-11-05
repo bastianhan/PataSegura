@@ -1,12 +1,99 @@
 {% extends 'mascotas/base.html' %}
-{% block titulo %}Reportar mascota perdida - PataSegura{% endblock %}
+{% load static patasegura %}
+{% block titulo %}{% if editando %}Editar publicación{% elif tipo == 'hallazgo' %}Reportar hallazgo{% else %}Crear alerta{% endif %} - PataSegura{% endblock %}
+{% block extra_head %}{% include 'mascotas/_leaflet.html' %}{% endblock %}
 {% block contenido %}
-<div class="form-card">
-    <h1>Reportar mascota perdida</h1>
-    <form method="post" enctype="multipart/form-data">
+<div class="pagina-angosta">
+    {% if editando %}
+    <a href="{% url 'detalle_mascota' editando.id %}" class="volver-link">{% icono 'atras' 18 %} Volver a la publicación</a>
+    <h1>Editar publicación</h1>
+    {% else %}
+    <a href="{% if tipo == 'hallazgo' %}{% url 'lista_hallazgos' %}{% else %}{% url 'lista_mascotas_perdidas' %}{% endif %}" class="volver-link">{% icono 'atras' 18 %} Volver al foro</a>
+    <h1>{% if tipo == 'hallazgo' %}Reportar un hallazgo{% else %}Crear alerta de mascota perdida{% endif %}</h1>
+    {% endif %}
+    <p class="text-muted">Los campos con <span class="obligatorio">*</span> son obligatorios.</p>
+
+    {% if bloqueo %}
+    <div class="alerta-error" role="alert">{% icono 'reloj' 18 %} <b>{{ bloqueo }}</b></div>
+    {% endif %}
+    {% if duplicada %}
+    <div class="alerta-error" role="alert">
+        <b>Ya tienes una alerta activa igual:</b> {{ duplicada.mascota.nombre|default:"Sin nombre" }} ({{ duplicada.fecha_evento|date:"j M Y" }}).
+        <a href="{% url 'detalle_mascota' duplicada.mascota.id %}">Ver mi alerta</a> o <a href="{% url 'editar_reporte' duplicada.mascota.id %}">editarla</a>.
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="form-card formulario" id="form-alerta" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn-primary">Publicar</button>
+        {% if token %}<input type="hidden" name="token" value="{{ token }}">{% endif %}
+
+        {% if errores %}
+        <div class="alerta-error" id="resumen-errores" tabindex="-1">
+            <b>Revisa estos datos para poder publicar:</b>
+            <ul>{% for e in errores %}<li>{{ e }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+
+        {% if not editando %}
+        <fieldset class="selector-tipo">
+            <legend class="sr-only">Tipo de publicación</legend>
+            <a href="?tipo=perdida" class="{% if tipo == 'perdida' %}activo{% endif %}">🔎 Perdí a mi mascota</a>
+            <a href="?tipo=hallazgo" class="{% if tipo == 'hallazgo' %}activo{% endif %}">🏠 Encontré una mascota</a>
+        </fieldset>
+        {% endif %}
+        <input type="hidden" name="tipo" value="{{ tipo }}">
+
+        <h2 class="subtitulo-form">Datos de la mascota</h2>
+        {% include 'mascotas/_campo.html' with campo=form.nombre %}
+
+        <div class="grupo-campo{% if form.especie.errors %} con-error{% endif %}">
+            <span class="etiqueta">Especie <span class="obligatorio">*</span></span>
+            <div class="opciones-especie" role="radiogroup" aria-label="Especie">
+                {% for opcion in form.especie %}
+                    <label>{{ opcion.tag }}<span>{{ opcion.data.value|emoji_especie }} {{ opcion.choice_label }}</span></label>
+                {% endfor %}
+            </div>
+            {% for e in form.especie.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+        </div>
+
+        <div class="fila-2">
+            {% include 'mascotas/_campo.html' with campo=form.raza %}
+            {% include 'mascotas/_campo.html' with campo=form.color %}
+        </div>
+        {% include 'mascotas/_campo.html' with campo=form.descripcion %}
+        <small class="contador" data-para="id_descripcion"></small>
+
+        <div class="grupo-campo{% if form.foto.errors %} con-error{% endif %}">
+            <span class="etiqueta">Foto</span>
+            <label class="subir-foto">
+                <input type="file" name="foto" accept="image/*" id="id_foto" class="sr-only">
+                <span id="vista-foto" class="vista-foto">{% icono 'camara' 28 %}</span>
+                <span><b>{% if editando.foto %}Cambiar la foto{% else %}Subir una foto{% endif %}</b><br><small class="text-muted">JPG, PNG o WEBP · máximo 5 MB</small></span>
+            </label>
+            {% for e in form.foto.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+        </div>
+
+        <h2 class="subtitulo-form">¿Dónde y cuándo?</h2>
+        {% include 'mascotas/_campo.html' with campo=form_reporte.fecha_evento %}
+
+        <div class="grupo-campo{% if form_reporte.latitud.errors or form_reporte.longitud.errors %} con-error{% endif %}">
+            <span class="etiqueta">Ubicación en el mapa <span class="obligatorio">*</span></span>
+            <small class="ayuda">Haz clic en el mapa donde se vio por última vez. Puedes arrastrar el pin para ajustarlo.</small>
+            <div id="mapa-form" class="mapa-form" data-tipo="{{ tipo }}"></div>
+            <button type="button" class="btn-secondary btn-chico" id="mi-ubicacion">{% icono 'ubicacion' 16 %} Usar mi ubicación</button>
+            {{ form_reporte.latitud }}{{ form_reporte.longitud }}
+            {% for e in form_reporte.latitud.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+        </div>
+
+        {% include 'mascotas/_campo.html' with campo=form.zona %}
+
+        <h2 class="subtitulo-form">Contacto</h2>
+        {% include 'mascotas/_campo.html' with campo=form.telefono_contacto %}
+        {% include 'mascotas/_campo.html' with campo=form.mostrar_telefono %}
+        <p class="texto-chico text-muted">Aunque no muestres tu teléfono, las personas podrán escribirte por el chat de PataSegura.</p>
+
+        <button type="submit" class="btn-primary btn-block" {% if bloqueo %}disabled{% endif %}>{% if editando %}Guardar cambios{% elif tipo == 'hallazgo' %}Publicar hallazgo{% else %}Publicar alerta{% endif %}</button>
     </form>
 </div>
 {% endblock %}
+{% block scripts %}<script src="{% static 'mascotas/form_alerta.js' %}"></script>{% endblock %}
