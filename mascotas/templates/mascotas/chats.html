@@ -7,7 +7,7 @@
     <div class="lista-chats">
     {% for c in chats %}
         <a href="{% url 'chat_detalle' c.conv.id %}" class="fila-chat{% if c.no_leidos %} no-leido{% endif %}">
-            {% include 'mascotas/_foto.html' with mascota=c.mascota tam='chica' %}
+            {% include 'mascotas/_foto.html' with mascota=c.mascota tam='chica' iconos_especie=True %}
             <div class="fila-chat-texto">
                 <b>{{ c.otro|nombre_visible }} <span class="text-muted">({{ c.mascota.nombre|default:"hallazgo" }})</span></b>
                 <p class="text-muted">{% if c.ultimo %}{% if c.ultimo.autor_id == user.id %}Tú: {% endif %}{{ c.ultimo.texto|truncatechars:60 }}{% else %}Sin mensajes todavía{% endif %}</p>

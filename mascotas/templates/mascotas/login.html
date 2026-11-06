@@ -1,5 +1,5 @@
 {% extends 'mascotas/base.html' %}
-{% load patasegura %}
+{% load static patasegura %}
 {% block titulo %}Iniciar sesión - PataSegura{% endblock %}
 {% block navbar %}{% endblock %}
 {% block clase_main %}auth-pagina{% endblock %}
@@ -9,7 +9,7 @@
         <span class="logo logo-grande">{% huella 34 %}<span>PataSegura</span></span>
         <h1>Juntos para que vuelvan a casa</h1>
         <p>Encuentra y ayuda a encontrar mascotas perdidas en tu zona.</p>
-        {% include 'mascotas/_ilustracion.html' %}
+        <img class="ilustracion" src="{% static 'mascotas/mascotas-login-v2.png' %}" alt="" aria-hidden="true">
     </section>
 
     <section class="auth-form">
@@ -31,7 +31,7 @@
             {% for e in form.password.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
             <input type="hidden" name="next" value="{{ next }}">
             <button type="submit" class="btn-primary btn-block">Entrar</button>
-            <p class="centrado"><a href="#" class="enlace-suave" data-proximamente="La recuperación de contraseña estará disponible próximamente.">¿Olvidaste tu contraseña?</a></p>
+            <p class="centrado"><a href="{% url 'password_reset' %}" class="enlace-suave">¿Olvidaste tu contraseña?</a></p>
         </form>
         <div class="separador"><span>o</span></div>
         <a href="{% url 'registro' %}" class="btn-secondary btn-block">Crear cuenta</a>

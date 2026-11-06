@@ -26,9 +26,9 @@
         </ul>
         <h3>Filtros</h3>
         <div class="filtros-especie" role="group" aria-label="Filtrar por especie">
-            <button type="button" data-especie="perro"><span>🐶</span>Perro</button>
-            <button type="button" data-especie="gato"><span>🐱</span>Gato</button>
-            <button type="button" data-especie="todos" class="activo"><span>🐾</span>Ambos</button>
+            <button type="button" data-especie="perro">{% include 'mascotas/_icono_especie.html' with especie='perro' %}Perro</button>
+            <button type="button" data-especie="gato">{% include 'mascotas/_icono_especie.html' with especie='gato' %}Gato</button>
+            <button type="button" data-especie="todos" class="activo">{% include 'mascotas/_icono_especie.html' with especie='otro' %}Ambos</button>
         </div>
         <label class="check-hallazgos"><input type="checkbox" id="ver-hallazgos" checked> Mostrar hallazgos <span class="pin-mini pin-hallazgo"></span></label>
     </div>

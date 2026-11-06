@@ -38,7 +38,7 @@
 <div class="grid">
 {% for mascota in adopciones %}
     <article class="card card-adopcion">
-        {% include 'mascotas/_foto.html' with mascota=mascota tam='grande' %}
+        {% include 'mascotas/_foto.html' with mascota=mascota tam='grande' iconos_especie=True %}
         <div class="item-top">
             <h3>{{ mascota.nombre }}</h3>
             <span class="badge badge-verde">Disponible</span>

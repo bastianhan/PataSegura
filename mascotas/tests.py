@@ -5,6 +5,7 @@ La clase PlanDePruebas tiene UNA prueba por cada caso del plan de pruebas del gr
 (test_1_1 = caso 1.1, test_2_3 = caso 2.3, etc.). Si todas dicen "ok", ese caso está cubierto.
 """
 import shutil
+import re
 import tempfile
 from datetime import timedelta
 from io import BytesIO
@@ -12,8 +13,11 @@ from unittest import mock
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
@@ -88,6 +92,95 @@ class Base(TestCase):
 # =====================================================================
 #  PLAN DE PRUEBAS — un test por cada caso
 # =====================================================================
+@override_settings(MAILERS={'default': {'BACKEND': 'django.core.mail.backends.locmem.EmailBackend'}})
+class ContrasenasTests(Base):
+    def test_recuperacion_con_enlace_de_un_solo_uso(self):
+        respuesta = self.client.post(reverse('password_reset'), {'email': self.ana.email})
+        self.assertRedirects(respuesta, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 1)
+        enlace = re.search(r'http://testserver(/recuperar-contrasena/\S+)', mail.outbox[0].body).group(1)
+        respuesta = self.client.get(enlace)
+        self.assertEqual(respuesta.status_code, 302)
+        ruta_formulario = respuesta['Location']
+        self.assertContains(self.client.get(ruta_formulario), 'Crear contraseña nueva')
+        respuesta = self.client.post(ruta_formulario, {'new_password1': 'SeguraNueva!481', 'new_password2': 'SeguraNueva!481'})
+        self.assertRedirects(respuesta, reverse('password_reset_complete'))
+        self.ana.refresh_from_db()
+        self.assertTrue(self.ana.check_password('SeguraNueva!481'))
+        respuesta = self.client.get(enlace, follow=True)
+        self.assertContains(respuesta, 'Enlace no válido')
+
+    def test_correo_desconocido_no_revela_existencia_de_cuenta(self):
+        respuesta = self.client.post(reverse('password_reset'), {'email': 'nadie@correo.cl'})
+        self.assertRedirects(respuesta, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_cambio_exige_sesion_y_contrasena_actual(self):
+        ruta = reverse('password_change')
+        self.assertEqual(self.client.get(ruta).status_code, 302)
+        self.client.force_login(self.ana)
+        datos = {'old_password': 'incorrecta', 'new_password1': 'SeguraNueva!481', 'new_password2': 'SeguraNueva!481'}
+        self.assertEqual(self.client.post(ruta, datos).status_code, 200)
+        self.ana.refresh_from_db()
+        self.assertTrue(self.ana.check_password('unaClaveSegura123'))
+        datos['old_password'] = 'unaClaveSegura123'
+        self.assertRedirects(self.client.post(ruta, datos), reverse('password_change_done'))
+        self.ana.refresh_from_db()
+        self.assertTrue(self.ana.check_password('SeguraNueva!481'))
+        self.assertEqual(self.client.get(reverse('password_change_done')).status_code, 200)
+
+
+class OrdenForoTests(Base):
+    def test_orden_fecha_perdida_desempate_y_paginacion(self):
+        fecha = timezone.now() - timedelta(days=1)
+        reportes = [self.crear_reporte(nombre=f'Mascota {i}') for i in range(12)]
+        for i, reporte in enumerate(reportes):
+            ReportePerdida.objects.filter(pk=reporte.pk).update(
+                fecha_publicacion=fecha + timedelta(days=i // 2),
+                fecha_evento=timezone.localdate() - timedelta(days=i // 2),
+            )
+        primera = self.client.get(reverse('lista_mascotas_perdidas'))
+        segunda = self.client.get(reverse('lista_mascotas_perdidas'), {'pagina': 2})
+        esperados = [reportes[i].pk for i in (1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10)]
+        self.assertEqual([r.pk for r in primera.context['reportes']], esperados[:10])
+        self.assertEqual([r.pk for r in segunda.context['reportes']], esperados[10:])
+        self.assertContains(primera, 'Publicado el')
+
+
+class RegresionChat(Base):
+    def test_api_ordenada_por_id_aunque_fecha_sea_distinta(self):
+        reporte = self.crear_reporte()
+        conv = Conversacion.objects.create(reporte=reporte, interesado=self.beto)
+        primero = Mensaje.objects.create(conversacion=conv, autor=self.ana, texto='Primero')
+        segundo = Mensaje.objects.create(conversacion=conv, autor=self.beto, texto='Segundo')
+        Mensaje.objects.filter(pk=primero.pk).update(fecha=timezone.now() + timedelta(minutes=1))
+        self.client.force_login(self.beto)
+        respuesta = self.client.get(reverse('api_mensajes', args=[conv.pk]), {'desde': 0})
+        self.assertEqual([m['id'] for m in respuesta.json()['mensajes']], [primero.pk, segundo.pk])
+
+
+class RegresionMigracion(TransactionTestCase):
+    def test_recupera_fechas_de_base_ya_migrada(self):
+        executor = MigrationExecutor(connection)
+        executor.migrate([('mascotas', '0004_denuncias_y_fotos_ocultas')])
+        apps = executor.loader.project_state([('mascotas', '0004_denuncias_y_fotos_ocultas')]).apps
+        Usuario = apps.get_model('auth', 'User')
+        MascotaAnterior = apps.get_model('mascotas', 'Mascota')
+        ReporteAnterior = apps.get_model('mascotas', 'ReportePerdida')
+        usuario = Usuario.objects.create(username='migracion')
+        fechas = [timezone.now() - timedelta(days=30), timezone.now() - timedelta(days=2)]
+        ids = []
+        for fecha in fechas:
+            mascota = MascotaAnterior.objects.create(usuario_id=usuario.pk, nombre='Luna', especie='gato', descripcion='Gata', zona='Santiago')
+            MascotaAnterior.objects.filter(pk=mascota.pk).update(fecha_publicacion=fecha)
+            ids.append(ReporteAnterior.objects.create(mascota_id=mascota.pk, fecha_evento=timezone.localdate()).pk)
+        executor = MigrationExecutor(connection)
+        executor.migrate([('mascotas', '0005_restaurar_fechas_reportes')])
+        reportes = ReportePerdida.objects.filter(pk__in=ids)
+        self.assertEqual(list(reportes.order_by('-fecha_publicacion').values_list('pk', flat=True)), ids[::-1])
+        self.assertEqual(list(reportes.order_by('pk').values_list('fecha_publicacion', flat=True)), fechas)
+
+
 class PlanDePruebas(Base):
 
     # ---------------- Funcionalidad 1: Registrar al usuario ----------------

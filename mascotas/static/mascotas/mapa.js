@@ -90,10 +90,11 @@
   const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const EMOJI = { perro: '🐶', gato: '🐱', otro: '🐾' };
 
-  function esc(t) {
-    const d = document.createElement('div');
-    d.textContent = t ?? '';
-    return d.innerHTML;
+  function elemento(tag, clase, texto) {
+    const nodo = document.createElement(tag);
+    if (clase) nodo.className = clase;
+    if (texto != null) nodo.textContent = texto;
+    return nodo;
   }
   function fechaLarga(iso) {
     const [a, m, d] = iso.split('-').map(Number);
@@ -127,19 +128,31 @@
       : `Mascotas perdidas en esta zona (${items.length})`;
 
     items.sort((a, b) => a.dias - b.dias);
-    lista.innerHTML = items.map((r) => `
-      <a class="fila-reporte" href="${r.url}">
-        ${r.foto
-          ? `<img class="foto-mascota mediana" src="${esc(r.foto)}" alt="Foto de ${esc(r.nombre)}">`
-          : `<div class="foto-mascota mediana sin-foto sin-foto-${r.especie}" role="img" aria-label="${esc(r.especie_texto)}">${EMOJI[r.especie] || '🐾'}</div>`}
-        <div class="fila-texto">
-          <div class="fila-titulo"><b>${esc(r.nombre)}</b><span class="badge ${claseUrgencia(r.dias)}">${haceDias(r.dias)}</span></div>
-          <p>${esc(r.especie_texto)}${r.raza ? ' · ' + esc(r.raza) : ''}${r.tipo === 'hallazgo' ? ' · <b class="txt-hallazgo">Hallazgo</b>' : ''}</p>
-          <p class="text-muted">${r.tipo === 'hallazgo' ? 'Encontrado' : 'Perdido'} el ${fechaLarga(r.fecha_evento)}</p>
-          <p class="text-muted">📍 ${textoDistancia(r)}</p>
-        </div>
-        <span class="chevron">›</span>
-      </a>`).join('');
+    lista.replaceChildren();
+    for (const r of items) {
+      const fila = elemento('a', 'fila-reporte');
+      fila.href = r.url;
+      let foto;
+      if (r.foto) {
+        foto = elemento('img', 'foto-mascota mediana');
+        foto.src = r.foto;
+        foto.alt = `Foto de ${r.nombre}`;
+      } else {
+        foto = elemento('div', `foto-mascota mediana sin-foto sin-foto-${r.especie}`, EMOJI[r.especie] || '🐾');
+        foto.setAttribute('role', 'img');
+        foto.setAttribute('aria-label', r.especie_texto);
+      }
+      const texto = elemento('div', 'fila-texto');
+      const titulo = elemento('div', 'fila-titulo');
+      titulo.append(elemento('b', '', r.nombre), elemento('span', `badge ${claseUrgencia(r.dias)}`, haceDias(r.dias)));
+      const especie = elemento('p', '', `${r.especie_texto}${r.raza ? ' · ' + r.raza : ''}`);
+      if (r.tipo === 'hallazgo') especie.append(document.createTextNode(' · '), elemento('b', 'txt-hallazgo', 'Hallazgo'));
+      texto.append(titulo, especie,
+        elemento('p', 'text-muted', `${r.tipo === 'hallazgo' ? 'Encontrado' : 'Perdido'} el ${fechaLarga(r.fecha_evento)}`),
+        elemento('p', 'text-muted', `📍 ${textoDistancia(r)}`));
+      fila.append(foto, texto, elemento('span', 'chevron', '›'));
+      lista.append(fila);
+    }
 
     panel.classList.add('abierto');
     caja.classList.add('con-panel');

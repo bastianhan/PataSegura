@@ -19,6 +19,7 @@
         <a href="{% url 'lista_chats' %}">{% icono 'chat' 22 %}<span>Mis chats</span>{% if chats_no_leidos %}<span class="globo-inline">{{ chats_no_leidos }}</span>{% else %}<small class="text-muted">{{ total_chats }}</small>{% endif %}{% icono 'derecha' 18 %}</a>
         <a href="#" data-proximamente="Las notificaciones estarán disponibles próximamente.">{% icono 'campana' 22 %}<span>Notificaciones</span>{% icono 'derecha' 18 %}</a>
         <a href="{% url 'configuracion' %}">{% icono 'ajustes' 22 %}<span>Configuración</span>{% icono 'derecha' 18 %}</a>
+        <a href="{% url 'password_change' %}">{% icono 'candado' 22 %}<span>Cambiar contraseña</span>{% icono 'derecha' 18 %}</a>
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
             <button type="submit" class="cerrar-sesion">{% icono 'salir' 22 %}<span>Cerrar sesión</span></button>

@@ -1,0 +1,6 @@
+{% extends 'mascotas/recuperar_base.html' %}
+{% block recuperacion %}
+<h2>Revisa tu correo</h2>
+<p>Si existe una cuenta activa con ese correo, recibirás un enlace para recuperar tu contraseña. Revisa también la carpeta de correo no deseado.</p>
+<p><a href="{% url 'login' %}">Volver a iniciar sesión</a></p>
+{% endblock %}

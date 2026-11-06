@@ -11,7 +11,7 @@
             <p class="text-muted">¿Encontraste un animal perdido? Publícalo aquí para que su familia lo encuentre.</p>
         {% else %}
             <h1>Foro de mascotas perdidas</h1>
-            <p class="text-muted">Alertas de la comunidad, de la más reciente a la más antigua.</p>
+            <p class="text-muted">Alertas ordenadas por fecha de pérdida, desde las más recientes.</p>
         {% endif %}
     </div>
     <a href="{% url 'reportar_mascota' %}{% if tipo == 'hallazgo' %}?tipo=hallazgo{% endif %}" class="btn-primary">
@@ -25,16 +25,16 @@
 
 <div class="chips" role="group" aria-label="Filtrar por especie">
     <a href="?especie=todos" class="chip {% if especie == 'todos' %}activo{% endif %}">Todos</a>
-    <a href="?especie=perro" class="chip {% if especie == 'perro' %}activo{% endif %}">🐶 Perros</a>
-    <a href="?especie=gato" class="chip {% if especie == 'gato' %}activo{% endif %}">🐱 Gatos</a>
-    <a href="?especie=otro" class="chip {% if especie == 'otro' %}activo{% endif %}">🐾 Otros</a>
+    <a href="?especie=perro" class="chip {% if especie == 'perro' %}activo{% endif %}">{% include 'mascotas/_icono_especie.html' with especie='perro' %} Perros</a>
+    <a href="?especie=gato" class="chip {% if especie == 'gato' %}activo{% endif %}">{% include 'mascotas/_icono_especie.html' with especie='gato' %} Gatos</a>
+    <a href="?especie=otro" class="chip {% if especie == 'otro' %}activo{% endif %}">{% include 'mascotas/_icono_especie.html' with especie='otro' %} Otros</a>
 </div>
 
 <div class="feed">
 {% for reporte in reportes %}
     {% with m=reporte.mascota %}
     <article class="tarjeta-reporte{% if nueva == m.id|stringformat:'s' %} destacada{% endif %}" id="m-{{ m.id }}">
-        <a href="{% url 'detalle_mascota' m.id %}" class="tarjeta-foto">{% include 'mascotas/_foto.html' with mascota=m tam='grande' %}</a>
+        <a href="{% url 'detalle_mascota' m.id %}" class="tarjeta-foto">{% include 'mascotas/_foto.html' with mascota=m tam='grande' iconos_especie=True %}</a>
         <div class="tarjeta-cuerpo">
             <header class="tarjeta-cabecera">
                 <div>
@@ -46,6 +46,7 @@
             <p class="descripcion">{{ m.descripcion|truncatechars:180 }}</p>
             <ul class="datos-reporte">
                 <li>{% icono 'reloj' 16 %} {% if tipo == 'hallazgo' %}Encontrado{% else %}Perdido{% endif %} el {{ reporte.fecha_evento|date:"j \d\e F \d\e Y" }}</li>
+                <li>{% icono 'reloj' 16 %} Publicado el {{ reporte.fecha_publicacion|date:"j \d\e F \d\e Y, H:i" }}</li>
                 <li>{% icono 'pin' 16 %} {{ m.zona }}</li>
                 <li>{% icono 'usuario' 16 %} Publicado por {{ m.usuario|nombre_visible }}</li>
             </ul>

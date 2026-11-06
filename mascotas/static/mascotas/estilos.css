@@ -158,6 +158,16 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .sin-foto { font-size: 2rem; }
 .sin-foto-perro { background: #f4e3c7; }
 .sin-foto-gato { background: #e6e0f2; }
+.icono-especie {
+    display: inline-block; flex: none; width: 1.4em; height: 1.4em; vertical-align: middle;
+    background-image: url('iconos-especies-v2.png'); background-size: 300% 100%; background-repeat: no-repeat;
+}
+.icono-especie-perro { background-position: left center; }
+.icono-especie-gato { background-position: center center; }
+.icono-especie-otro { background-position: right center; }
+.icono-especie-tarjeta { width: min(112px, 74%); height: auto; aspect-ratio: 1; }
+.foto-mascota.chica .icono-especie-tarjeta { width: 1.4rem; }
+.foto-mascota.mediana .icono-especie-tarjeta { width: 2rem; }
 .foto-mascota.chica { width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; }
 .foto-mascota.mediana { width: 72px; height: 72px; }
 .foto-mascota.grande { width: 100%; height: 100%; min-height: 160px; font-size: 3.2rem; }
@@ -216,7 +226,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     font: inherit; background: #fff;
 }
 .formulario input:focus, .formulario textarea:focus, .formulario select:focus { border-color: var(--color-primary); outline: none; box-shadow: 0 0 0 3px var(--color-primary-light); }
-.con-error input, .con-error textarea, .con-error select, .con-error .mapa-form, .con-error .opciones-especie span { border-color: var(--color-error) !important; }
+.con-error input, .con-error textarea, .con-error select, .con-error .mapa-form, .con-error .opciones-especie label > span { border-color: var(--color-error) !important; }
 .campo-check label { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
 .fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
 
@@ -231,7 +241,8 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .opciones-especie { display: flex; gap: .5rem; flex-wrap: wrap; }
 .opciones-especie label { cursor: pointer; }
 .opciones-especie input { position: absolute; opacity: 0; }
-.opciones-especie span { display: inline-block; padding: .5rem 1rem; border: 1px solid var(--color-border); border-radius: 999px; font-weight: 600; background: #fff; }
+.opciones-especie label > span { display: inline-block; padding: .5rem 1rem; border: 1px solid var(--color-border); border-radius: 999px; font-weight: 600; background: #fff; }
+.opciones-especie .icono-especie-formulario { width: 1em; height: 1em; }
 .opciones-especie input:checked + span { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
 .opciones-especie input:focus-visible + span { outline: 3px solid #8fb8ad; }
 
@@ -254,6 +265,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .auth-aside h1 { font-size: 2.1rem; margin: 1.25rem 0 .25rem; color: var(--color-primary-dark); }
 .auth-aside p { color: var(--color-text-muted); margin: 0; }
 .ilustracion { width: 100%; max-width: 340px; margin-top: 1.5rem; }
+img.ilustracion { max-width: 400px; align-self: center; }
 .auth-form { padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: .25rem; }
 .auth-form h2 { margin: .5rem 0 1rem; font-size: 1.5rem; }
 .auth-form form { display: flex; flex-direction: column; gap: .65rem; }
@@ -315,6 +327,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #fff; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
 }
 .filtros-especie button span { font-size: 1.2rem; }
+.filtros-especie .icono-especie { width: 1.2rem; height: 1.2rem; }
 .filtros-especie button.activo { border: 2px solid var(--color-primary); background: var(--color-primary-light); }
 .check-hallazgos { display: flex; align-items: center; gap: .4rem; margin-top: .8rem; font-size: .85rem; font-weight: 600; }
 
