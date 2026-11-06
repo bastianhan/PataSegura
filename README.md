@@ -1,7 +1,7 @@
 # 🐾 PataSegura
 
 Plataforma web para conectar a **dueños de mascotas perdidas**, **personas que encuentran animales** y **refugios**.
-Hecha con **Django** (Python), **Leaflet** para el mapa y HTML/CSS/JS sin frameworks extra.
+Hecha con **Django** (Python), **Leaflet** + **OpenFreeMap** para el mapa (gratis y sin clave de API) y HTML/CSS/JS sin frameworks extra.
 
 ## ¿Qué incluye el prototipo?
 

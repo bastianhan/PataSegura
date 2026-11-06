@@ -56,14 +56,40 @@ window.PataSegura = {
   CENTRO_SANTIAGO,
 
   crearMapa(elemento, centro = CENTRO_SANTIAGO, zoom = 12) {
-    const mapa = L.map(elemento, { zoomControl: false }).setView(centro, zoom);
+    const mapa = L.map(elemento, { zoomControl: false, maxZoom: 19, minZoom: 3 }).setView(centro, zoom);
     L.control.zoom({ position: 'bottomleft' }).addTo(mapa);
-    // Mapa base de OpenStreetMap con estilo "Voyager" de CARTO (gratis, sin clave)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    }).addTo(mapa);
+
+    const ATRIB_OSM = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+    // Plan B: mapa clásico de OpenStreetMap (imágenes). Gratis, sin clave.
+    let respaldoPuesto = false;
+    const usarRespaldo = () => {
+      if (respaldoPuesto) return;
+      respaldoPuesto = true;
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: ATRIB_OSM }).addTo(mapa);
+    };
+
+    // Plan A: OpenFreeMap (gratis, sin clave ni límites de uso), estilo "liberty"
+    if (window.maplibregl && L.maplibreGL) {
+      try {
+        const capa = L.maplibreGL({
+          style: 'https://tiles.openfreemap.org/styles/liberty',
+          attribution: '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> ' + ATRIB_OSM,
+        }).addTo(mapa);
+        // Si en 8 segundos no cargó (servicio caído o computador sin WebGL), cambiamos al plan B
+        setTimeout(() => {
+          const gl = capa.getMaplibreMap && capa.getMaplibreMap();
+          if (!gl || !gl.isStyleLoaded()) {
+            mapa.removeLayer(capa);
+            usarRespaldo();
+          }
+        }, 8000);
+      } catch (e) {
+        usarRespaldo();
+      }
+    } else {
+      usarRespaldo();
+    }
     return mapa;
   },
 

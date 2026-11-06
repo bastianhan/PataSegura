@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     {% block extra_head %}{% endblock %}
-    <link rel="stylesheet" href="{% static 'mascotas/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'mascotas/estilos.css' %}?v=3">
 </head>
 <body class="{% block clase_body %}{% endblock %}">
     {% block navbar %}
@@ -43,7 +43,7 @@
         {% block contenido %}{% endblock %}
     </main>
 
-    <script src="{% static 'mascotas/main.js' %}"></script>
+    <script src="{% static 'mascotas/main.js' %}?v=3"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
