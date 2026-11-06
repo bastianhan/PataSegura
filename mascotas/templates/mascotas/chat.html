@@ -1,0 +1,39 @@
+{% extends 'mascotas/base.html' %}
+{% load static patasegura %}
+{% block titulo %}Chat con {{ otro|nombre_visible }} - PataSegura{% endblock %}
+{% block contenido %}
+<div class="chat" id="chat" data-api="{% url 'api_mensajes' conv.id %}" data-enviar="{% url 'chat_detalle' conv.id %}">
+    <header class="chat-cabecera">
+        <a href="{% url 'lista_chats' %}" class="boton-icono" aria-label="Volver a chats">{% icono 'atras' %}</a>
+        {% include 'mascotas/_foto.html' with mascota=mascota tam='chica' %}
+        <div>
+            <b>{{ otro|nombre_visible }} ({{ mascota.nombre|default:"hallazgo" }})</b>
+            <a href="{% url 'detalle_mascota' mascota.id %}" class="texto-chico">Ver publicación</a>
+        </div>
+    </header>
+
+    <div class="chat-mensajes" id="mensajes" aria-live="polite">
+        <div class="chat-contexto">
+            {% include 'mascotas/_foto.html' with mascota=mascota tam='mediana' %}
+            <p>Conversación sobre <b>{{ mascota.nombre|default:"un hallazgo" }}</b> · {{ mascota.zona }}</p>
+        </div>
+        {% for m in mensajes %}
+            <div class="burbuja {% if m.autor_id == user.id %}mia{% else %}suya{% endif %}" data-id="{{ m.id }}">
+                <p>{{ m.texto|linebreaksbr }}</p>
+                <small>{{ m.fecha|time:"H:i" }}{% if m.autor_id == user.id %} <span class="visto{% if m.leido %} leido{% endif %}">✓✓</span>{% endif %}</small>
+            </div>
+        {% empty %}
+            <p class="chat-vacio text-muted" id="chat-vacio">Escribe el primer mensaje. Cuenta dónde y cuándo viste a la mascota.</p>
+        {% endfor %}
+    </div>
+
+    <form method="post" class="chat-form" id="chat-form">
+        {% csrf_token %}
+        <button type="button" class="boton-icono" data-proximamente="Pronto podrás enviar fotos por el chat." aria-label="Adjuntar foto">{% icono 'clip' %}</button>
+        <input type="text" name="texto" placeholder="Escribe un mensaje…" autocomplete="off" maxlength="{{ largo_max }}" data-max="{{ largo_max }}" aria-label="Mensaje">
+        <small class="contador-chat" id="contador-chat" hidden></small>
+        <button type="submit" class="boton-enviar" aria-label="Enviar">{% icono 'enviar' %}</button>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'mascotas/chat.js' %}"></script>{% endblock %}

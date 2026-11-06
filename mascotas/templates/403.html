@@ -1,0 +1,11 @@
+{% extends 'mascotas/base.html' %}
+{% load patasegura %}
+{% block titulo %}Sin acceso - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-error">
+    <div class="pagina-error-icono">{% icono 'candado' 48 %}</div>
+    <h1>No tienes acceso</h1>
+    <p class="text-muted">{% if exception %}{{ exception }}{% else %}Solo quien creó esta publicación puede modificarla.{% endif %}</p>
+    <a href="{% url 'lista_mascotas_perdidas' %}" class="btn-primary">Volver al foro</a>
+</div>
+{% endblock %}

@@ -1,12 +1,18 @@
 {% extends 'mascotas/base.html' %}
+{% load patasegura %}
 {% block titulo %}Publicar en adopción - PataSegura{% endblock %}
 {% block contenido %}
-<div class="form-card">
+<div class="pagina-angosta">
+    <a href="{% url 'lista_adopciones' %}" class="volver-link">{% icono 'atras' 18 %} Volver a adopciones</a>
     <h1>Publicar mascota en adopción</h1>
-    <form method="post" enctype="multipart/form-data">
+    {% if bloqueo %}<div class="alerta-error" role="alert"><b>{{ bloqueo }}</b></div>{% endif %}
+    <form method="post" enctype="multipart/form-data" class="form-card formulario" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn-primary">Publicar</button>
+        {% if form.errors %}<div class="alerta-error">Faltan datos obligatorios. Revisa los campos marcados en rojo.</div>{% endif %}
+        {% for campo in form %}
+            {% include 'mascotas/_campo.html' with campo=campo %}
+        {% endfor %}
+        <button type="submit" class="btn-primary btn-block" {% if bloqueo %}disabled{% endif %}>Publicar</button>
     </form>
 </div>
 {% endblock %}

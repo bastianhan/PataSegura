@@ -1,0 +1,10 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}No encontrado - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-error">
+    <div class="pagina-error-icono">🐾❓</div>
+    <h1>No encontramos esta página</h1>
+    <p class="text-muted">Puede que la publicación haya sido eliminada o que la dirección esté mal escrita.</p>
+    <a href="{% url 'mapa' %}" class="btn-primary">Ir al mapa</a>
+</div>
+{% endblock %}

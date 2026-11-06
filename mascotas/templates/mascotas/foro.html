@@ -1,0 +1,74 @@
+{% extends 'mascotas/base.html' %}
+{% load patasegura %}
+{% block titulo %}{% if tipo == 'hallazgo' %}Hallazgos{% else %}Foro de mascotas perdidas{% endif %} - PataSegura{% endblock %}
+{% block contenido %}
+{% include 'mascotas/_pestanas_foro.html' with activa=tipo %}
+
+<div class="section-header">
+    <div>
+        {% if tipo == 'hallazgo' %}
+            <h1>Hallazgos</h1>
+            <p class="text-muted">¿Encontraste un animal perdido? Publícalo aquí para que su familia lo encuentre.</p>
+        {% else %}
+            <h1>Foro de mascotas perdidas</h1>
+            <p class="text-muted">Alertas de la comunidad, de la más reciente a la más antigua.</p>
+        {% endif %}
+    </div>
+    <a href="{% url 'reportar_mascota' %}{% if tipo == 'hallazgo' %}?tipo=hallazgo{% endif %}" class="btn-primary">
+        {% icono 'publicar' 18 %} {% if tipo == 'hallazgo' %}Reportar hallazgo{% else %}Crear Alerta{% endif %}
+    </a>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="alerta-info">{% icono 'candado' 18 %} <span>Para publicar debes <a href="{% url 'login' %}?next={% url 'reportar_mascota' %}">iniciar sesión</a>.</span></div>
+{% endif %}
+
+<div class="chips" role="group" aria-label="Filtrar por especie">
+    <a href="?especie=todos" class="chip {% if especie == 'todos' %}activo{% endif %}">Todos</a>
+    <a href="?especie=perro" class="chip {% if especie == 'perro' %}activo{% endif %}">🐶 Perros</a>
+    <a href="?especie=gato" class="chip {% if especie == 'gato' %}activo{% endif %}">🐱 Gatos</a>
+    <a href="?especie=otro" class="chip {% if especie == 'otro' %}activo{% endif %}">🐾 Otros</a>
+</div>
+
+<div class="feed">
+{% for reporte in reportes %}
+    {% with m=reporte.mascota %}
+    <article class="tarjeta-reporte{% if nueva == m.id|stringformat:'s' %} destacada{% endif %}" id="m-{{ m.id }}">
+        <a href="{% url 'detalle_mascota' m.id %}" class="tarjeta-foto">{% include 'mascotas/_foto.html' with mascota=m tam='grande' %}</a>
+        <div class="tarjeta-cuerpo">
+            <header class="tarjeta-cabecera">
+                <div>
+                    <h3><a href="{% url 'detalle_mascota' m.id %}">{{ m.nombre|default:"Sin nombre" }}</a></h3>
+                    <p class="text-muted">{{ m.get_especie_display }}{% if m.raza %} · {{ m.raza }}{% endif %}{% if m.color %} · {{ m.color }}{% endif %}</p>
+                </div>
+                <span class="badge {{ reporte|clase_urgencia }}">{{ reporte|hace_dias }}</span>
+            </header>
+            <p class="descripcion">{{ m.descripcion|truncatechars:180 }}</p>
+            <ul class="datos-reporte">
+                <li>{% icono 'reloj' 16 %} {% if tipo == 'hallazgo' %}Encontrado{% else %}Perdido{% endif %} el {{ reporte.fecha_evento|date:"j \d\e F \d\e Y" }}</li>
+                <li>{% icono 'pin' 16 %} {{ m.zona }}</li>
+                <li>{% icono 'usuario' 16 %} Publicado por {{ m.usuario|nombre_visible }}</li>
+            </ul>
+            <div class="tarjeta-acciones">
+                {% if reporte.coordenadas %}<a class="btn-secondary btn-chico" href="{% url 'mapa' %}?ver={{ m.id }}">{% icono 'mapa' 16 %} Ver en mapa</a>{% endif %}
+                <a class="btn-primary btn-chico" href="{% url 'detalle_mascota' m.id %}">Ver detalle</a>
+            </div>
+        </div>
+    </article>
+    {% endwith %}
+{% empty %}
+    <div class="vacio">
+        {% if tipo == 'hallazgo' %}<p>Todavía no hay hallazgos reportados.</p>
+        {% else %}<p>No hay alertas de mascotas perdidas{% if especie != 'todos' %} para este filtro{% endif %}. 🐾</p>{% endif %}
+    </div>
+{% endfor %}
+</div>
+
+{% if pagina.has_other_pages %}
+<nav class="paginacion" aria-label="Páginas">
+    {% if pagina.has_previous %}<a class="btn-secondary btn-chico" href="?especie={{ especie }}&pagina={{ pagina.previous_page_number }}">← Más nuevas</a>{% endif %}
+    <span class="text-muted">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+    {% if pagina.has_next %}<a class="btn-secondary btn-chico" href="?especie={{ especie }}&pagina={{ pagina.next_page_number }}">Más antiguas →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

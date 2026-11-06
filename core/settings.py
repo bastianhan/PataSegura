@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'mascotas.middleware.LimiteTamanoPeticion',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'mascotas.context_processors.chats_no_leidos',
             ],
         },
     },
@@ -103,9 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-cl'  # mensajes de Django en español
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
@@ -127,9 +129,36 @@ MAILERS = {
     },
 }
 
+# Login con correo electrónico (o nombre de usuario)
+AUTHENTICATION_BACKENDS = ['mascotas.backends.CorreoOUsuarioBackend']
+
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'inicio'
 LOGOUT_REDIRECT_URL = 'inicio'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# =====================================================================
+#  Seguridad y límites anti-spam  (ver PRUEBAS.md — plan de pruebas)
+# =====================================================================
+LIMITES = {
+    'ALERTAS_POR_DIA': 5,            # 3.1  máximo de alertas que un usuario publica en 24 horas
+    'ALERTAS_ACTIVAS_MAX': 10,       # 3.1  máximo de alertas activas al mismo tiempo
+    'SEGUNDOS_ENTRE_ALERTAS': 60,    # 2.1  espera obligatoria entre una alerta y otra
+    'MENSAJES_POR_MINUTO': 10,       # 2.1  mensajes de chat por minuto
+    'ADOPCIONES_POR_DIA': 5,         # 2.1  publicaciones de adopción en 24 horas
+    'DENUNCIAS_PARA_OCULTAR': 3,     # 2.4  denuncias de distintas personas para ocultar una foto
+    'LARGO_MAX_MENSAJE': 1000,       # 2.5  caracteres por mensaje de chat
+    'LARGO_MAX_DESCRIPCION': 1000,   # 2.5  caracteres de la descripción de una alerta
+    'INTENTOS_LOGIN': 5,             # máx. contraseñas incorrectas seguidas…
+    'MINUTOS_BLOQUEO_LOGIN': 15,     # …antes de bloquear el login por estos minutos
+    'MB_MAX_PETICION': 10,           # peticiones más grandes se rechazan antes de procesarlas
+}
+
+# 1.5: consulta el DNS para comprobar que el dominio del correo existe (si no hay internet, no bloquea)
+VERIFICAR_DOMINIO_CORREO = True
+
+# Tamaño máximo de formularios (sin contar archivos) y de archivos guardados en memoria
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
