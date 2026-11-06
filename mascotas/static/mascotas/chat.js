@@ -20,10 +20,9 @@
     contador.classList.toggle('excedido', n >= max);
   });
 
-  const ultimoId = () => {
-    const burbujas = caja.querySelectorAll('.burbuja[data-id]');
-    return burbujas.length ? Number(burbujas[burbujas.length - 1].dataset.id) : 0;
-  };
+  const idsIniciales = [...caja.querySelectorAll('.burbuja[data-id]')].map((b) => Number(b.dataset.id));
+  let cursor = Math.max(0, ...idsIniciales);
+  let sondeo = null;
   const bajar = () => (caja.scrollTop = caja.scrollHeight);
 
   function agregar(m) {
@@ -65,7 +64,7 @@
         input.value = texto;
         window.PataSegura.mostrarAviso(datos.error || 'No se pudo enviar el mensaje. Intenta de nuevo.', 'error');
       } else {
-        agregar(datos.mensaje);
+        await revisarNuevos(true);
         if (datos.aviso) window.PataSegura.mostrarAviso(datos.aviso, 'info');
       }
     } catch {
@@ -76,12 +75,32 @@
     input.focus();
   });
 
-  async function revisarNuevos() {
-    if (document.hidden) return;
+  async function revisarNuevos(forzar = false) {
+    if (document.hidden && !forzar) return;
+    if (sondeo) {
+      await sondeo;
+      if (forzar) return revisarNuevos(true);
+      return;
+    }
+    sondeo = (async () => {
+      try {
+        let mensajes;
+        do {
+          const resp = await fetch(`${chat.dataset.api}?desde=${cursor}`);
+          if (!resp.ok) return;
+          mensajes = (await resp.json()).mensajes;
+          for (const mensaje of mensajes) {
+            agregar(mensaje);
+            cursor = mensaje.id;
+          }
+        } while (mensajes.length === 200);
+      } catch { /* sin conexión: se reintenta en el próximo ciclo */ }
+    })();
     try {
-      const resp = await fetch(`${chat.dataset.api}?desde=${ultimoId()}`);
-      if (resp.ok) (await resp.json()).mensajes.forEach(agregar);
-    } catch { /* sin conexión: se reintenta en el próximo ciclo */ }
+      await sondeo;
+    } finally {
+      sondeo = null;
+    }
   }
 
   bajar();

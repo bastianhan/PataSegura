@@ -5,7 +5,7 @@
 <div class="chat" id="chat" data-api="{% url 'api_mensajes' conv.id %}" data-enviar="{% url 'chat_detalle' conv.id %}">
     <header class="chat-cabecera">
         <a href="{% url 'lista_chats' %}" class="boton-icono" aria-label="Volver a chats">{% icono 'atras' %}</a>
-        {% include 'mascotas/_foto.html' with mascota=mascota tam='chica' %}
+        {% include 'mascotas/_foto.html' with mascota=mascota tam='chica' iconos_especie=True %}
         <div>
             <b>{{ otro|nombre_visible }} ({{ mascota.nombre|default:"hallazgo" }})</b>
             <a href="{% url 'detalle_mascota' mascota.id %}" class="texto-chico">Ver publicación</a>
@@ -14,7 +14,7 @@
 
     <div class="chat-mensajes" id="mensajes" aria-live="polite">
         <div class="chat-contexto">
-            {% include 'mascotas/_foto.html' with mascota=mascota tam='mediana' %}
+            {% include 'mascotas/_foto.html' with mascota=mascota tam='mediana' iconos_especie=True %}
             <p>Conversación sobre <b>{{ mascota.nombre|default:"un hallazgo" }}</b> · {{ mascota.zona }}</p>
         </div>
         {% for m in mensajes %}

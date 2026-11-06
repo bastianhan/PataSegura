@@ -1,0 +1,19 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Cambiar contraseña - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-angosta">
+    <a href="{% url 'mi_cuenta' %}" class="volver-link">← Mi cuenta</a>
+    <h1>Cambiar contraseña</h1>
+    <p>Ingresa tu contraseña actual y elige una nueva.</p>
+    <form method="post" class="form-card formulario" novalidate>
+        {% csrf_token %}
+        {% for campo in form %}
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {% include 'mascotas/_campo_icono.html' with campo=campo ico='candado' clave=True %}
+            {% if campo.help_text %}<small class="ayuda">{{ campo.help_text|safe }}</small>{% endif %}
+        {% endfor %}
+        <button type="submit" class="btn-primary btn-block">Guardar contraseña</button>
+    </form>
+    <p><a href="{% url 'password_reset' %}">Olvidé mi contraseña actual</a></p>
+</div>
+{% endblock %}

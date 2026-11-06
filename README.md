@@ -72,6 +72,7 @@ Abre **http://127.0.0.1:8000** en el navegador. Para apagarlo, presiona `Ctrl + 
 - Pruebas automáticas (27, incluidos los 15 casos del plan de pruebas): `python manage.py test`
 - Moderación: en `/admin/` → *Mascotas* puedes filtrar por "foto oculta" y usar las acciones "Eliminar la foto" o "Volver a mostrarla". Las denuncias aparecen en *Denuncias*.
 - El mapa necesita **conexión a internet**, porque las imágenes del mapa y la librería Leaflet se descargan al abrir la página.
+- Recuperación de contraseña: en esta configuración local, el enlace se imprime en la consola donde corre el servidor; no se envía un correo real. Para enviarlo por email hay que configurar un servicio de correo.
 
 ---
 
@@ -119,4 +120,3 @@ ESTABLECIMIENTO (veterinarias, refugios, tiendas)
 - Enviar fotos por el chat.
 - Confirmar el correo con un enlace (para comprobar que el buzón existe de verdad).
 - Detección automática de fotos inapropiadas con un servicio externo de IA.
-- Recuperar contraseña por correo.

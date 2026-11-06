@@ -1,0 +1,19 @@
+{% extends 'mascotas/base.html' %}
+{% load patasegura %}
+{% block titulo %}Recuperar contraseña - PataSegura{% endblock %}
+{% block navbar %}{% endblock %}
+{% block clase_main %}auth-pagina{% endblock %}
+{% block contenido %}
+<div class="auth-layout">
+    <section class="auth-aside">
+        <span class="logo logo-grande">{% huella 34 %}<span>PataSegura</span></span>
+        <h1>Juntos para que vuelvan a casa</h1>
+        <p>Encuentra y ayuda a encontrar mascotas perdidas en tu zona.</p>
+        {% include 'mascotas/_ilustracion.html' %}
+    </section>
+    <section class="auth-form">
+        <span class="logo solo-movil">{% huella 28 %}<span>PataSegura</span></span>
+        {% block recuperacion %}{% endblock %}
+    </section>
+</div>
+{% endblock %}

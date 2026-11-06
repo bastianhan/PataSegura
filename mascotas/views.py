@@ -57,6 +57,8 @@ def _feed(request, tipo):
     reportes = (ReportePerdida.objects
                 .filter(tipo=tipo, estado_busqueda='activa')
                 .select_related('mascota', 'mascota__usuario'))
+    orden = ('-fecha_evento', '-fecha_publicacion', '-id') if tipo == 'perdida' else ('-fecha_publicacion', '-id')
+    reportes = reportes.order_by(*orden)
     if especie in ('perro', 'gato', 'otro'):
         reportes = reportes.filter(mascota__especie=especie)
     else:
@@ -438,7 +440,7 @@ def chat_detalle(request, conv_id):
         'conv': conv,
         'otro': conv.otro(request.user),
         'mascota': conv.reporte.mascota,
-        'mensajes': conv.mensajes.all(),
+        'mensajes': conv.mensajes.order_by('id'),
         'largo_max': limites.limite('LARGO_MAX_MENSAJE'),
     })
 
@@ -448,7 +450,7 @@ def api_mensajes(request, conv_id):
     """Mensajes nuevos de un chat (el navegador pregunta cada pocos segundos)."""
     conv = _conversacion_de(request, conv_id)
     desde = request.GET.get('desde', '0')
-    nuevos = conv.mensajes.filter(id__gt=int(desde) if desde.isdigit() and len(desde) < 12 else 0)[:200]
+    nuevos = conv.mensajes.filter(id__gt=int(desde) if desde.isdigit() and len(desde) < 12 else 0).order_by('id')[:200]
     respuesta = [_mensaje_json(m, request.user) for m in nuevos]
     ids = [m['id'] for m in respuesta]
     conv.mensajes.filter(id__in=ids, leido=False).exclude(autor=request.user).update(leido=True)

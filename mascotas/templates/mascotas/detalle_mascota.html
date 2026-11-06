@@ -6,7 +6,7 @@
 <a href="{% if reporte.tipo == 'hallazgo' %}{% url 'lista_hallazgos' %}{% else %}{% url 'lista_mascotas_perdidas' %}{% endif %}" class="volver-link">{% icono 'atras' 18 %} Volver al foro</a>
 
 <div class="detalle">
-    <div class="detalle-foto-caja">{% include 'mascotas/_foto.html' with mascota=mascota tam='enorme' %}</div>
+    <div class="detalle-foto-caja">{% include 'mascotas/_foto.html' with mascota=mascota tam='enorme' iconos_especie=True %}</div>
 
     <div class="detalle-info">
         <div class="tarjeta-cabecera">

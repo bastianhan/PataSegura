@@ -50,7 +50,7 @@
             <span class="etiqueta">Especie <span class="obligatorio">*</span></span>
             <div class="opciones-especie" role="radiogroup" aria-label="Especie">
                 {% for opcion in form.especie %}
-                    <label>{{ opcion.tag }}<span>{{ opcion.data.value|emoji_especie }} {{ opcion.choice_label }}</span></label>
+                    <label>{{ opcion.tag }}<span>{% include 'mascotas/_icono_especie.html' with especie=opcion.data.value clase='icono-especie-formulario' %} {{ opcion.choice_label }}</span></label>
                 {% endfor %}
             </div>
             {% for e in form.especie.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
