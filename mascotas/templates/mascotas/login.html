@@ -1,20 +1,41 @@
 {% extends 'mascotas/base.html' %}
+{% load static patasegura %}
 {% block titulo %}Iniciar sesión - PataSegura{% endblock %}
+{% block navbar %}{% endblock %}
+{% block clase_main %}auth-pagina{% endblock %}
 {% block contenido %}
 <div class="auth-layout">
-    <div class="auth-aside">
-        <div class="auth-icon">🐾</div>
-        <h2>Juntos para que vuelvan a casa</h2>
+    <section class="auth-aside">
+        <span class="logo logo-grande">{% huella 34 %}<span>PataSegura</span></span>
+        <h1>Juntos para que vuelvan a casa</h1>
         <p>Encuentra y ayuda a encontrar mascotas perdidas en tu zona.</p>
-    </div>
-    <div class="auth-form">
-        <h1>Iniciar sesión</h1>
-        <form method="post">
+        <img class="ilustracion" src="{% static 'mascotas/mascotas-login-v2.png' %}" alt="" aria-hidden="true">
+    </section>
+
+    <section class="auth-form">
+        <span class="logo solo-movil">{% huella 28 %}<span>PataSegura</span></span>
+        <h2>Iniciar sesión</h2>
+        <form method="post" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
+            {% if form.non_field_errors %}
+                <div class="alerta-error">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+            {% endif %}
+            <label class="campo-icono{% if form.username.errors %} con-error{% endif %}">
+                {% icono 'correo' %}{{ form.username }}
+            </label>
+            {% for e in form.username.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+            <label class="campo-icono{% if form.password.errors %} con-error{% endif %}">
+                {% icono 'candado' %}{{ form.password }}
+                <button type="button" class="ver-clave" aria-label="Mostrar contraseña">{% icono 'ojo' 18 %}</button>
+            </label>
+            {% for e in form.password.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+            <input type="hidden" name="next" value="{{ next }}">
             <button type="submit" class="btn-primary btn-block">Entrar</button>
+            <p class="centrado"><a href="{% url 'password_reset' %}" class="enlace-suave">¿Olvidaste tu contraseña?</a></p>
         </form>
-        <p class="auth-switch">¿No tiene cuenta? <a href="{% url 'registro' %}">Crear una cuenta</a></p>
-    </div>
+        <div class="separador"><span>o</span></div>
+        <a href="{% url 'registro' %}" class="btn-secondary btn-block">Crear cuenta</a>
+        <p class="centrado texto-chico"><a href="{% url 'mapa' %}">Ver el mapa sin iniciar sesión →</a></p>
+    </section>
 </div>
 {% endblock %}

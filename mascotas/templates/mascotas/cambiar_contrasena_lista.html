@@ -1,0 +1,9 @@
+{% extends 'mascotas/base.html' %}
+{% block titulo %}Contraseña actualizada - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-angosta">
+    <h1>Contraseña actualizada</h1>
+    <p>Tu contraseña se cambió correctamente.</p>
+    <a href="{% url 'mi_cuenta' %}" class="btn-primary">Volver a mi cuenta</a>
+</div>
+{% endblock %}

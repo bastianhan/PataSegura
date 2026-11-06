@@ -1,0 +1,12 @@
+{% extends 'mascotas/recuperar_base.html' %}
+{% block recuperacion %}
+<h2>Recuperar contraseña</h2>
+<p>Ingresa el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva.</p>
+<form method="post" novalidate>
+    {% csrf_token %}
+    <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+    {% include 'mascotas/_campo_icono.html' with campo=form.email ico='correo' %}
+    <button class="btn-primary btn-block" type="submit">Enviar enlace</button>
+</form>
+<p class="centrado"><a href="{% url 'login' %}">Volver a iniciar sesión</a></p>
+{% endblock %}

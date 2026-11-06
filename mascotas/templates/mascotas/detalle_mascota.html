@@ -1,19 +1,93 @@
 {% extends 'mascotas/base.html' %}
+{% load static patasegura %}
 {% block titulo %}{{ mascota.nombre|default:"Mascota" }} - PataSegura{% endblock %}
+{% block extra_head %}{% if reporte.coordenadas %}{% include 'mascotas/_leaflet.html' %}{% endif %}{% endblock %}
 {% block contenido %}
+<a href="{% if reporte.tipo == 'hallazgo' %}{% url 'lista_hallazgos' %}{% else %}{% url 'lista_mascotas_perdidas' %}{% endif %}" class="volver-link">{% icono 'atras' 18 %} Volver al foro</a>
+
 <div class="detalle">
-    {% if mascota.foto %}<img src="{{ mascota.foto.url }}" alt="{{ mascota.nombre }}" class="detalle-foto">{% endif %}
-    <h1>{{ mascota.nombre|default:"Mascota sin nombre" }}</h1>
-    <p><strong>Especie:</strong> {{ mascota.get_especie_display }}</p>
-    {% if mascota.raza %}<p><strong>Raza:</strong> {{ mascota.raza }}</p>{% endif %}
-    {% if mascota.color %}<p><strong>Color:</strong> {{ mascota.color }}</p>{% endif %}
-    <p><strong>Zona:</strong> {{ mascota.zona }}</p>
-    <p><strong>Descripción:</strong> {{ mascota.descripcion }}</p>
-    <p><strong>Estado:</strong> {{ mascota.get_estado_display }}</p>
-    {% if mascota.mostrar_telefono and mascota.telefono_contacto %}
-        <p><strong>Contacto:</strong> {{ mascota.telefono_contacto }}</p>
-    {% else %}
-        <p class="nota">Esta publicación no comparte un teléfono público.</p>
-    {% endif %}
+    <div class="detalle-foto-caja">{% include 'mascotas/_foto.html' with mascota=mascota tam='enorme' iconos_especie=True %}</div>
+
+    <div class="detalle-info">
+        <div class="tarjeta-cabecera">
+            <div>
+                <p class="sobretitulo">{% if reporte.tipo == 'hallazgo' %}Mascota encontrada{% else %}Mascota perdida{% endif %}</p>
+                <h1>{{ mascota.nombre|default:"Sin nombre" }}</h1>
+                <p class="text-muted">{{ mascota.get_especie_display }}{% if mascota.raza %} · {{ mascota.raza }}{% endif %}{% if mascota.color %} · {{ mascota.color }}{% endif %}</p>
+            </div>
+            {% if reporte %}
+                {% if reporte.estado_busqueda == 'activa' %}
+                    <span class="badge {{ reporte|clase_urgencia }}">{{ reporte|hace_dias }}</span>
+                {% else %}
+                    <span class="badge badge-gris">{{ reporte.get_estado_busqueda_display }}</span>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <p class="descripcion">{{ mascota.descripcion|linebreaksbr }}</p>
+
+        <ul class="datos-reporte">
+            {% if reporte %}<li>{% icono 'reloj' 16 %} {% if reporte.tipo == 'hallazgo' %}Encontrado{% else %}Perdido{% endif %} el {{ reporte.fecha_evento|date:"j \d\e F \d\e Y" }}</li>{% endif %}
+            <li>{% icono 'pin' 16 %} {{ mascota.zona }}</li>
+            <li>{% icono 'usuario' 16 %} Publicado por {{ mascota.usuario|nombre_visible }} · {{ mascota.fecha_publicacion|date:"j M Y" }}</li>
+            {% if mascota.mostrar_telefono and mascota.telefono_contacto %}
+                <li>{% icono 'telefono' 16 %} <a href="tel:{{ mascota.telefono_contacto }}">{{ mascota.telefono_contacto }}</a></li>
+            {% endif %}
+        </ul>
+
+        <div class="acciones-detalle">
+            {% if es_mia %}
+                {% if reporte %}
+                <form method="post" action="{% url 'cambiar_estado' mascota.id %}" class="form-estado">
+                    {% csrf_token %}
+                    {% if reporte.estado_busqueda == 'activa' %}
+                        <input type="hidden" name="estado_busqueda" value="encontrada">
+                        <button type="submit" class="btn-primary">{% icono 'check' 18 %} ¡{% if reporte.tipo == 'hallazgo' %}Ya volvió con su familia{% else %}La encontré{% endif %}!</button>
+                    {% else %}
+                        <input type="hidden" name="estado_busqueda" value="activa">
+                        <button type="submit" class="btn-secondary">Volver a publicar la búsqueda</button>
+                    {% endif %}
+                </form>
+                {% endif %}
+                <a href="{% url 'editar_reporte' mascota.id %}" class="btn-secondary">Editar publicación</a>
+                {% if mascota.foto_oculta %}<p class="alerta-error texto-chico">Tu foto fue ocultada porque otras personas la denunciaron. Un administrador la revisará. Puedes cambiarla editando la publicación.</p>{% endif %}
+                <p class="texto-chico text-muted">Esta es tu publicación.</p>
+            {% elif reporte %}
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="btn-primary">{% icono 'chat' 18 %} Inicia sesión para escribir</a>
+                {% elif conversacion %}
+                    <a href="{% url 'chat_detalle' conversacion.id %}" class="btn-primary">{% icono 'chat' 18 %} Ir al chat</a>
+                {% else %}
+                    <form method="post" action="{% url 'iniciar_chat' mascota.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-primary">{% icono 'chat' 18 %} {% if reporte.tipo == 'hallazgo' %}¡Es mi mascota! Escribir{% else %}Tengo información{% endif %}</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if reporte and user.is_authenticated and not es_mia %}
+        <details class="denunciar">
+            <summary>Denunciar esta publicación</summary>
+            <form method="post" action="{% url 'denunciar' mascota.id %}">
+                {% csrf_token %}
+                <label><input type="radio" name="motivo" value="foto" checked> Foto inapropiada</label>
+                <label><input type="radio" name="motivo" value="texto"> Texto ofensivo</label>
+                <label><input type="radio" name="motivo" value="falsa"> Publicación falsa o spam</label>
+                <button type="submit" class="btn-secondary btn-chico">Enviar denuncia</button>
+            </form>
+        </details>
+        {% endif %}
+    </div>
 </div>
+
+{% if reporte.coordenadas %}
+<section class="detalle-mapa">
+    <h2>Dónde se vio por última vez</h2>
+    <div id="mapa-detalle" class="mapa-detalle"
+         data-lat="{{ reporte.latitud|stringformat:'s' }}" data-lng="{{ reporte.longitud|stringformat:'s' }}" data-tipo="{{ reporte.tipo }}"></div>
+    <a href="{% url 'mapa' %}?ver={{ mascota.id }}" class="texto-chico">Abrir en el mapa grande →</a>
+</section>
+{% endif %}
 {% endblock %}
+{% block scripts %}{% if reporte.coordenadas %}<script src="{% static 'mascotas/detalle.js' %}"></script>{% endif %}{% endblock %}

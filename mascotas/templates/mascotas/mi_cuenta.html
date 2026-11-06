@@ -1,40 +1,29 @@
 {% extends 'mascotas/base.html' %}
+{% load patasegura %}
 {% block titulo %}Mi cuenta - PataSegura{% endblock %}
 {% block contenido %}
-<div class="cuenta-header">
-    <div class="avatar avatar-lg">{{ user.username|first|upper }}</div>
-    <div>
-        <h1>{{ user.username }}</h1>
-        <p class="text-muted">{{ user.email }}</p>
+<div class="pagina-angosta">
+    <div class="cuenta-header">
+        <div class="avatar avatar-lg">{{ user|iniciales }}</div>
+        <div>
+            <h1>{{ user|nombre_visible }}</h1>
+            <p class="text-muted">{{ user.email }}</p>
+            {% if perfil.comuna or perfil.telefono %}
+            <p class="text-muted texto-chico">{% if perfil.comuna %}{% icono 'pin' 14 %} {{ perfil.comuna }}{% endif %}{% if perfil.telefono %} · {% icono 'telefono' 14 %} {{ perfil.telefono }}{% endif %}</p>
+            {% endif %}
+        </div>
     </div>
-</div>
 
-<h2>Mis mascotas reportadas</h2>
-<div class="grid">
-{% for mascota in mis_mascotas %}
-    <a href="{% url 'detalle_mascota' mascota.id %}" class="card card-link">
-        <h3>{{ mascota.nombre|default:"Sin nombre" }}</h3>
-        <p>{{ mascota.get_estado_display }} — {{ mascota.zona }}</p>
-    </a>
-{% empty %}
-    <p class="text-muted">Todavía no se ha reportado ninguna mascota.</p>
-{% endfor %}
+    <nav class="menu-cuenta" aria-label="Opciones de la cuenta">
+        <a href="{% url 'mis_publicaciones' %}">{% huella 22 %}<span>Mis publicaciones</span><small class="text-muted">{{ total_publicaciones }}</small>{% icono 'derecha' 18 %}</a>
+        <a href="{% url 'lista_chats' %}">{% icono 'chat' 22 %}<span>Mis chats</span>{% if chats_no_leidos %}<span class="globo-inline">{{ chats_no_leidos }}</span>{% else %}<small class="text-muted">{{ total_chats }}</small>{% endif %}{% icono 'derecha' 18 %}</a>
+        <a href="#" data-proximamente="Las notificaciones estarán disponibles próximamente.">{% icono 'campana' 22 %}<span>Notificaciones</span>{% icono 'derecha' 18 %}</a>
+        <a href="{% url 'configuracion' %}">{% icono 'ajustes' 22 %}<span>Configuración</span>{% icono 'derecha' 18 %}</a>
+        <a href="{% url 'password_change' %}">{% icono 'candado' 22 %}<span>Cambiar contraseña</span>{% icono 'derecha' 18 %}</a>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="cerrar-sesion">{% icono 'salir' 22 %}<span>Cerrar sesión</span></button>
+        </form>
+    </nav>
 </div>
-
-<h2>Mis publicaciones de adopción</h2>
-<div class="grid">
-{% for mascota in mis_adopciones %}
-    <div class="card">
-        <h3>{{ mascota.nombre }}</h3>
-        <p>{{ mascota.get_especie_display }} — {{ mascota.zona }}</p>
-    </div>
-{% empty %}
-    <p class="text-muted">Todavía no se ha publicado ninguna mascota en adopción.</p>
-{% endfor %}
-</div>
-
-<form action="{% url 'logout' %}" method="post" class="cuenta-logout">
-    {% csrf_token %}
-    <button type="submit" class="btn-secondary">Cerrar sesión</button>
-</form>
 {% endblock %}

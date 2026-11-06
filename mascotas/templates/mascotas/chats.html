@@ -1,0 +1,29 @@
+{% extends 'mascotas/base.html' %}
+{% load patasegura %}
+{% block titulo %}Chats - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-angosta">
+    <h1>Tus conversaciones</h1>
+    <div class="lista-chats">
+    {% for c in chats %}
+        <a href="{% url 'chat_detalle' c.conv.id %}" class="fila-chat{% if c.no_leidos %} no-leido{% endif %}">
+            {% include 'mascotas/_foto.html' with mascota=c.mascota tam='chica' iconos_especie=True %}
+            <div class="fila-chat-texto">
+                <b>{{ c.otro|nombre_visible }} <span class="text-muted">({{ c.mascota.nombre|default:"hallazgo" }})</span></b>
+                <p class="text-muted">{% if c.ultimo %}{% if c.ultimo.autor_id == user.id %}Tú: {% endif %}{{ c.ultimo.texto|truncatechars:60 }}{% else %}Sin mensajes todavía{% endif %}</p>
+            </div>
+            <div class="fila-chat-meta">
+                {% if c.ultimo %}<small class="text-muted">{{ c.ultimo.fecha|hora_chat }}</small>{% endif %}
+                {% if c.no_leidos %}<span class="punto-verde" aria-label="{{ c.no_leidos }} sin leer"></span>{% endif %}
+            </div>
+        </a>
+    {% empty %}
+        <div class="vacio">
+            <p>Todavía no tienes conversaciones.</p>
+            <p class="text-muted">Cuando veas una mascota que reconoces, entra a su publicación y aprieta <b>"Tengo información"</b>.</p>
+            <a href="{% url 'mapa' %}" class="btn-primary">Ir al mapa</a>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

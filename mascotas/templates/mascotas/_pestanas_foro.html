@@ -1,0 +1,7 @@
+{% load patasegura %}
+<nav class="pestanas" aria-label="Secciones del foro">
+    <a href="{% url 'lista_mascotas_perdidas' %}" class="pestana {% if activa == 'perdida' %}activa{% endif %}">{% icono 'campana' 18 %}Mascotas perdidas</a>
+    <a href="{% url 'lista_hallazgos' %}" class="pestana {% if activa == 'hallazgo' %}activa{% endif %}">{% icono 'lupa' 18 %}Hallazgos</a>
+    <a href="{% url 'lista_adopciones' %}" class="pestana {% if activa == 'adopciones' %}activa{% endif %}">{% icono 'corazon' 18 %}Adopciones</a>
+    <a href="{% url 'lista_establecimientos' %}" class="pestana {% if activa == 'establecimientos' %}activa{% endif %}">{% icono 'casa' 18 %}Veterinarias y refugios</a>
+</nav>

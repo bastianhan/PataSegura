@@ -1,0 +1,55 @@
+{% extends 'mascotas/base.html' %}
+{% load patasegura %}
+{% block titulo %}Mis publicaciones - PataSegura{% endblock %}
+{% block contenido %}
+<div class="pagina-angosta">
+    <a href="{% url 'mi_cuenta' %}" class="volver-link">{% icono 'atras' 18 %} Mi cuenta</a>
+    <h1>Mis publicaciones</h1>
+
+    <h2>Alertas y hallazgos</h2>
+    <div class="lista-horizontal">
+    {% for reporte in mis_reportes %}
+        {% with m=reporte.mascota %}
+        <div class="item-horizontal">
+            {% include 'mascotas/_foto.html' with mascota=m tam='mediana' %}
+            <div class="item-info">
+                <div class="item-top">
+                    <a href="{% url 'detalle_mascota' m.id %}"><strong>{{ m.nombre|default:"Sin nombre" }}</strong></a>
+                    <span class="badge {% if reporte.estado_busqueda == 'activa' %}badge-ambar{% else %}badge-verde{% endif %}">{{ reporte.get_estado_busqueda_display }}</span>
+                </div>
+                <p class="text-muted">{{ reporte.get_tipo_display }} · {{ reporte.fecha_evento|date:"j M Y" }} · {{ m.zona }}</p>
+            </div>
+            <form method="post" action="{% url 'cambiar_estado' m.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="volver" value="{% url 'mis_publicaciones' %}">
+                {% if reporte.estado_busqueda == 'activa' %}
+                    <input type="hidden" name="estado_busqueda" value="encontrada">
+                    <button type="submit" class="btn-secondary btn-chico">{% icono 'check' 16 %} Encontrada</button>
+                {% else %}
+                    <input type="hidden" name="estado_busqueda" value="activa">
+                    <button type="submit" class="btn-secondary btn-chico">Reactivar</button>
+                {% endif %}
+            </form>
+        </div>
+        {% endwith %}
+    {% empty %}
+        <p class="text-muted">Todavía no has publicado alertas. <a href="{% url 'reportar_mascota' %}">Crear una alerta</a></p>
+    {% endfor %}
+    </div>
+
+    <h2>Adopciones</h2>
+    <div class="lista-horizontal">
+    {% for mascota in mis_adopciones %}
+        <div class="item-horizontal">
+            {% include 'mascotas/_foto.html' with mascota=mascota tam='mediana' %}
+            <div class="item-info">
+                <strong>{{ mascota.nombre }}</strong>
+                <p class="text-muted">{{ mascota.get_especie_display }} · {{ mascota.zona }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted">Todavía no has publicado mascotas en adopción.</p>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

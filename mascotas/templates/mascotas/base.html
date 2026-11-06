@@ -1,34 +1,49 @@
-{% load static %}
-<!DOCTYPE html>
+{% load static patasegura %}<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo %}PataSegura{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'mascotas/estilos.css' %}">
+    <link rel="icon" href="{% static 'mascotas/favicon.svg' %}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'mascotas/estilos.css' %}?v=8">
 </head>
-<body>
+<body class="{% block clase_body %}{% endblock %}">
+    {% block navbar %}
     <header class="navbar">
-        <a href="{% url 'inicio' %}" class="logo">🐾 PataSegura</a>
-        <nav>
-            <a href="{% url 'lista_mascotas_perdidas' %}">Mascotas perdidas</a>
-            <a href="{% url 'lista_establecimientos' %}">Veterinarias y refugios</a>
-            <a href="{% url 'lista_adopciones' %}">Adopciones</a>
-        </nav>
-        <div class="user-area">
+        <a href="{% url 'inicio' %}" class="logo">{% huella 26 %}<span>PataSegura</span></a>
+        {% with ruta=request.resolver_match.url_name %}
+        <nav class="menu" aria-label="Menú principal">
+            <a href="{% url 'mapa' %}" class="menu-item {% if ruta == 'mapa' %}activo{% endif %}">{% icono 'mapa' 22 %}<span>Mapa</span></a>
+            <a href="{% url 'lista_mascotas_perdidas' %}" class="menu-item {% if ruta in 'lista_mascotas_perdidas,detalle_mascota,lista_hallazgos,lista_adopciones,publicar_adopcion,lista_establecimientos' %}activo{% endif %}">{% icono 'foro' 22 %}<span>Foro</span></a>
+            <a href="{% url 'reportar_mascota' %}" class="menu-item {% if ruta == 'reportar_mascota' %}activo{% endif %}">{% icono 'publicar' 22 %}<span>Publicar</span></a>
+            <a href="{% url 'lista_chats' %}" class="menu-item {% if ruta == 'lista_chats' or ruta == 'chat_detalle' %}activo{% endif %}">
+                <span class="icono-con-globo">{% icono 'chat' 22 %}{% if chats_no_leidos %}<span class="globo" aria-label="{{ chats_no_leidos }} sin leer">{{ chats_no_leidos }}</span>{% endif %}</span><span>Chats</span>
+            </a>
             {% if user.is_authenticated %}
-                <a href="{% url 'mi_cuenta' %}" class="avatar" title="Mi cuenta">{{ user.username|first|upper }}</a>
+                <a href="{% url 'mi_cuenta' %}" class="menu-item {% if ruta in 'mi_cuenta,mis_publicaciones,configuracion' %}activo{% endif %}">{% icono 'usuario' 22 %}<span>Mi cuenta</span></a>
             {% else %}
-                <a href="{% url 'login' %}">Iniciar sesión</a>
-                <a href="{% url 'registro' %}" class="btn-primary">Crear cuenta</a>
+                <a href="{% url 'login' %}" class="menu-item">{% icono 'usuario' 22 %}<span>Entrar</span></a>
             {% endif %}
-        </div>
+        </nav>
+        {% endwith %}
     </header>
+    {% endblock %}
 
-    <main class="container">
+    {% if messages %}
+    <div class="avisos" role="status">
+        {% for m in messages %}<div class="aviso aviso-{{ m.tags }}">{{ m }}</div>{% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="{% block clase_main %}container{% endblock %}">
         {% block contenido %}{% endblock %}
     </main>
 
-    <script src="{% static 'mascotas/main.js' %}"></script>
+    <script src="{% static 'mascotas/main.js' %}?v=3"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

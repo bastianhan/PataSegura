@@ -1,15 +1,18 @@
 {% extends 'mascotas/base.html' %}
+{% load patasegura %}
 {% block titulo %}Veterinarias y refugios - PataSegura{% endblock %}
 {% block contenido %}
+{% include 'mascotas/_pestanas_foro.html' with activa='establecimientos' %}
 <h1>Veterinarias y refugios</h1>
+<p class="text-muted">Lugares donde pueden revisar si un animal tiene microchip o recibir mascotas encontradas.</p>
 <div class="grid">
 {% for lugar in establecimientos %}
     <div class="card">
-        <span class="badge">{{ lugar.get_tipo_display }}</span>
+        <span class="badge badge-gris">{{ lugar.get_tipo_display }}</span>
         <h3>{{ lugar.nombre }}</h3>
-        <p>{{ lugar.direccion }}</p>
-        {% if lugar.telefono %}<p>📞 {{ lugar.telefono }}</p>{% endif %}
-        {% if lugar.horario %}<p>🕒 {{ lugar.horario }}</p>{% endif %}
+        <p>{% icono 'pin' 16 %} {{ lugar.direccion }}</p>
+        {% if lugar.telefono %}<p>{% icono 'telefono' 16 %} {{ lugar.telefono }}</p>{% endif %}
+        {% if lugar.horario %}<p>{% icono 'reloj' 16 %} {{ lugar.horario }}</p>{% endif %}
         <a href="https://www.google.com/maps/search/?api=1&query={{ lugar.direccion|urlencode }}" target="_blank" rel="noopener">Ver en el mapa ↗</a>
     </div>
 {% empty %}

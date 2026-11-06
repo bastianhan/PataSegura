@@ -1,0 +1,14 @@
+{% comment %}
+  Dibuja un campo de formulario con su etiqueta, asterisco si es obligatorio y su error.
+  Uso: {% include 'mascotas/_campo.html' with campo=form.nombre %}
+{% endcomment %}
+<div class="grupo-campo{% if campo.errors %} con-error{% endif %}{% if campo.field.widget.input_type == 'checkbox' %} campo-check{% endif %}">
+    {% if campo.field.widget.input_type == 'checkbox' %}
+        <label>{{ campo }} {{ campo.label }}</label>
+    {% else %}
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} <span class="obligatorio">*</span>{% endif %}</label>
+        {{ campo }}
+    {% endif %}
+    {% if campo.help_text %}<small class="ayuda">{{ campo.help_text|safe }}</small>{% endif %}
+    {% for e in campo.errors %}<small class="error-campo">{{ e }}</small>{% endfor %}
+</div>
